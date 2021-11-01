@@ -1,0 +1,59 @@
+#define Kp 75//80-85
+//#define offset 45
+#define HiSpeed 75//65
+#define Ki 20
+
+#define Kd 300  //300-600
+#define LowSpeed 20
+int actual, error, turn, powerB, powerC,
+integral, derivative, lasterror,cerna,bila,offset;
+task main()
+{
+SetSensorLight(IN_3);
+cerna = Sensor(IN_3);
+Wait(1000);
+RotateMotor(OUT_BC,-50,120);
+Wait(1000);
+bila = Sensor(IN_3) ;
+offset=((bila + cerna)/2);
+Wait(1000);
+derivative = 0;
+lasterror = 0;
+do
+{
+OnFwd(OUT_BC, LowSpeed);
+}
+while (Sensor(IN_3) > offset);
+while (true)
+{
+actual = Sensor(IN_3);
+error = offset - actual;
+derivative = error - lasterror;
+turn = (Kp * error)+ (Kd *derivative);
+turn = turn / 100;
+powerB = HiSpeed - turn;
+powerC = HiSpeed + turn;
+if (powerB < 0)
+{
+powerB = 0;
+}
+else if (powerB>100)
+{
+ powerB = 100;
+}
+if (powerC > 100)
+{
+powerC = 100;
+}
+else if (powerC<0)
+{
+ powerB = 0 ;
+ }
+OnFwd(OUT_C,-powerC);
+OnFwd(OUT_B,-powerB);
+/*
+
+*/
+lasterror = error;
+}
+}
